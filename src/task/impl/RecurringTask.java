@@ -21,7 +21,7 @@ public class RecurringTask implements Task {
 
     @Override
     public void completeTask() {
-
+        this.dueDate = dueDate.plusDays(intervalDays);
     }
 
     @Override
@@ -38,10 +38,6 @@ public class RecurringTask implements Task {
         if(tomorrow.isEqual(dueDate)) {
             TaskManager.printNotification(this,Status.DUE_TOMORROW);
         }
-    }
-
-    public void updateNextDueDate() {
-        this.dueDate = dueDate.plusDays(intervalDays);
     }
 
     @Override
