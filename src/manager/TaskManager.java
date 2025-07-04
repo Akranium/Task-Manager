@@ -18,12 +18,13 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Scanner;
 import java.util.stream.StreamSupport;
 
 public class TaskManager {
 
-    public final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+    public final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("dd-MM-yyyy", Locale.ENGLISH);
     public final String FILE_PATH = "src/files/tasks.json";
 
 
@@ -129,24 +130,29 @@ public class TaskManager {
         while(!terminate) {
             String[] args = scanner.nextLine().toLowerCase().split(" ");
 
-            //Checks for enough arguements.
-            if (args.length < 3 || (!args[1].equals("r") && args.length < 5)) {
-                System.out.println("Usage: addtask <name> <dd-MM-yyyy> OR addtask r <name> <dd-MM-yyyy> <interval>");
-                break;
-            }
-
             switch(args[0]) {
                 case "terminate","stop":
                     saveTasks();
                     terminate = true;
                     System.out.println("Terminating...");
                     break;
+
                 case "addtask":
+                    //Checks for enough arguements.
+                    if (args.length < 3 || (args[1].equals("r") && args.length < 5)) {
+                        System.out.println("Usage: addtask <name> <dd-MM-yyyy> OR addtask r <name> <dd-MM-yyyy> <interval>");
+                        continue;
+                    }
+
                     if (args[1].equals("r")) {
                         String taskName = args[2];
                         try {
                             LocalDate date = LocalDate.parse(args[3], FORMATTER);
                             int interval = Integer.parseInt(args[4]);
+                            if(interval <= 0) {
+                                System.out.println("Interval cannot be negative.");
+                                continue;
+                            }
                             addTask(TaskType.ONE_TIME, taskName, date, interval);
                         } catch (DateTimeParseException e) {
                             System.out.println("Invalid date format! Please use dd-MM-yyyy.");
@@ -163,6 +169,7 @@ public class TaskManager {
                         }
                     }
                     break;
+
                 case "deletetask":
                     try {
                         deleteTask(args[1]);
@@ -170,10 +177,13 @@ public class TaskManager {
                         System.out.println("Please provide a task to delete.");
                     }
                     break;
+
                 case "list":
                     listTasks();
+
                 case "help":
                     break;
+
                 default: System.out.println("Unknown command. Type 'help' to see a list of commands.");
             }
         }
